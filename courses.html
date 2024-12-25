@@ -13,21 +13,52 @@
             background-color: #f4f4f9;
             color: #333;
         }
+
         header {
             background-color: #0078d4;
             color: white;
             padding: 15px;
             text-align: center;
         }
+
         header h1 {
             margin: 0;
             font-size: 2em;
         }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background-color: #e0f7fa;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .dashboard .stat {
+            background-color: #0078d4;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 200px;
+            text-align: center;
+        }
+
+        .dashboard .stat h3 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .dashboard .stat p {
+            margin: 10px 0 0;
+        }
+
         .search-bar {
             display: flex;
             justify-content: center;
             margin: 20px 0;
         }
+
         .search-bar input {
             width: 60%;
             padding: 10px;
@@ -35,6 +66,7 @@
             border-radius: 5px 0 0 5px;
             font-size: 1em;
         }
+
         .search-bar button {
             padding: 10px;
             border: none;
@@ -44,15 +76,18 @@
             cursor: pointer;
             border-radius: 0 5px 5px 0;
         }
+
         .search-bar button:hover {
             background-color: #005fa3;
         }
+
         .courses-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             padding: 20px;
         }
+
         .course-card {
             background: white;
             border-radius: 10px;
@@ -61,27 +96,33 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
         }
+
         .course-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
+
         .course-card img {
             width: 100%;
             height: 200px;
             object-fit: cover;
         }
+
         .course-card .info {
             padding: 15px;
             text-align: center;
         }
+
         .course-card h3 {
             margin: 0 0 10px;
             font-size: 1.5em;
         }
+
         .course-card p {
             margin: 0 0 15px;
             color: #666;
         }
+
         .course-card a {
             color: white;
             background-color: #0078d4;
@@ -91,25 +132,29 @@
             font-weight: bold;
             display: inline-block;
         }
+
         .course-card a:hover {
             background-color: #005fa3;
         }
+
         .course-card .badge {
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: #ff5722;
+            background-color: #28a745;
             color: white;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 0.9em;
         }
+
         .course-card .rating {
             display: flex;
             justify-content: center;
             gap: 3px;
             margin-top: 10px;
         }
+
         .course-card .rating i {
             color: #ffb400;
         }
@@ -119,58 +164,100 @@
     <header>
         <h1>Advanced Courses</h1>
     </header>
+
+    <!-- Dashboard Section -->
+    <div class="dashboard">
+        <div class="stat">
+            <h3>100+</h3>
+            <p>Courses Available</p>
+        </div>
+        <div class="stat">
+            <h3>2000+</h3>
+            <p>Enrolled Students</p>
+        </div>
+        <div class="stat">
+            <h3>4.5</h3>
+            <p>Average Rating</p>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
     <div class="search-bar">
         <input type="text" id="search" placeholder="Search for a course...">
         <button onclick="searchCourses()"><i class="fa fa-search"></i> Search</button>
     </div>
+
+    <!-- Courses Section -->
     <div class="courses-container" id="courses-container">
         <!-- Course cards will be dynamically inserted here -->
     </div>
 
     <script>
-        async function fetchCourses(query = '') {
-            try {
-                const response = await fetch(`http://localhost:3000`); // Replace with a valid API endpoint
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const courses = await response.json();
-                displayCourses(courses);
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-            }
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("courses-container");
 
-        function displayCourses(courses) {
-            const container = document.getElementById('courses-container');
-            container.innerHTML = '';
-            courses.forEach(course => {
-                const courseCard = document.createElement('div');
-                courseCard.classList.add('course-card');
-                courseCard.innerHTML = `
-                    <span class="badge">${course.level}</span>
-                    <img src="${course.image}" alt="${course.title}">
-                    <div class="info">
-                        <h3>${course.title}</h3>
-                        <p>${course.description}</p>
-                        <div class="rating">
-                            ${'<i class="fa fa-star"></i>'.repeat(course.rating)}
-                            ${'<i class="fa fa-star-o"></i>'.repeat(5 - course.rating)}
+            // Fetch the courses JSON
+            fetch("https://dishadutta04.github.io/json_file/courses.json")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch courses.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayCourses(data.courses);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    container.innerHTML = `<p style="color: red; text-align: center;">Failed to load courses. Please try again later.</p>`;
+                });
+
+            // Function to display courses in the DOM
+            function displayCourses(categories) {
+                container.innerHTML = ""; // Clear the container
+
+                categories.forEach(category => {
+                    const categorySection = document.createElement("section");
+                    categorySection.innerHTML = `
+                        <h2 style="text-align: center; color: #0078d4;">${category.category}</h2>
+                        <div class="category-courses" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
                         </div>
-                        <a href="${course.link}" target="_blank">View Course</a>
-                    </div>
-                `;
-                container.appendChild(courseCard);
-            });
-        }
+                    `;
+                    const categoryContainer = categorySection.querySelector(".category-courses");
 
-        function searchCourses() {
-            const query = document.getElementById('search').value;
-            fetchCourses(query);
-        }
+                    category.courses.forEach(course => {
+                        const courseCard = document.createElement("div");
+                        courseCard.classList.add("course-card");
+                        courseCard.style.cssText = `
+                            background: white;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            overflow: hidden;
+                            width: 280px;
+                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            position: relative;
+                        `;
+                        courseCard.innerHTML = `
+                            <span class="badge" style="position: absolute; top: 10px; left: 10px; background-color: #28a745; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">$${course.price}</span>
+                            <img src="${course.image}" alt="${course.title}" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div class="info" style="padding: 15px; text-align: center;">
+                                <h3 style="margin: 0 0 10px; font-size: 1.5em;">${course.title}</h3>
+                                <p style="margin: 0 0 15px; color: #666;">${course.description}</p>
+                                <div class="rating" style="display: flex; justify-content: center; gap: 3px; margin-top: 10px;">
+                                    ${'<i class="fa fa-star" style="color: #ffb400;"></i>'.repeat(course.rating)}
+                                    ${'<i class="fa fa-star-o" style="color: #ccc;"></i>'.repeat(5 - course.rating)}
+                                </div>
+                                <a href="${course.link}" target="_blank" style="color: white; background-color: #0078d4; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">View Course</a>
+                            </div>
+                        `;
+                        categoryContainer.appendChild(courseCard);
+                        
+                    });
 
-        // Fetch initial courses on page load
-        fetchCourses();
+                    container.appendChild(categorySection);
+                });
+            }
+        });
     </script>
 </body>
 </html>
